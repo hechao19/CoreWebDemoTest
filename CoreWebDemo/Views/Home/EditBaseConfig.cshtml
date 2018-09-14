@@ -1,0 +1,146 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>EditBaseConfig</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        @*<link rel="stylesheet" href="~/css/site.css" />*@
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        @*<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
+    </environment>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        @*<script src="~/js/site.js" asp-append-version="true"></script>*@
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        @*<script src="~/js/site.min.js" asp-append-version="true"></script>*@
+    </environment>
+
+</head>
+<body>
+    <div id="EditDiv" style="margin:20px;">
+        <div style="margin:10px 0;">
+            节点代码:
+            <input style="width:150px;" type="text" v-model="baseConfig.NodeCode" />
+        </div>
+        <div style="margin:10px 0;">
+            节点值域:
+            <input style="width:150px;" type="text" v-model="baseConfig.NodeDomain" />
+        </div>
+        <div style="margin:20px 0 0 0;">
+            <button v-on:click="EditBaseConfig">保存</button>
+            <button v-on:click="CancelBaseConfig">取消</button>
+        </div>
+    </div>
+    <input type="hidden" value="@ViewData["NodeCode"]" id="hidNodeCode" />
+
+    <script src="~/js/vue.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            var vm = new Vue({
+                el: '#EditDiv',
+                data: {
+                    url: "/Home/AddBaseConfig",
+                    baseConfig: { NodeCode: "" }
+                },
+                methods: {
+                    LoadBaseConfig: function () {
+                        var _this = this;
+                        var nodeCodeVal = $("#hidNodeCode").val();
+
+                        if (nodeCodeVal) {
+                            _this.url = "/Home/UpdateBaseConfig";
+
+                            $.ajax({
+                                url: "/Home/GetBaseConfig",
+                                type: "post",
+                                dataType: "json",
+                                data: { nodeCode: nodeCodeVal },
+                                success: function (json) {
+                                    if (json.ErrorCode) {
+                                        var errMsg = "错误代码：" + json.ErrorCode + "</br>错误信息:" + json.Message;
+                                        top.layer.msg(errMsg);
+                                    }
+                                    else {
+                                        _this.baseConfig = json;
+                                    }
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    /*错误信息处理*/
+                                }
+                            });
+                        }
+                    },
+                    EditBaseConfig: function () {
+                        var _this = this;
+
+                        if (!_this.baseConfig.NodeCode) {
+                            alert("Code不能为空！");
+                            return;
+                        }
+                        if (!_this.baseConfig.NodeDomain) {
+                            alert("Domain不能为空！");
+                            return;
+                        }
+
+                        $.ajax({
+                            url: _this.url,
+                            type: "post",
+                            dataType: "json",
+                            data: _this.baseConfig,
+                            success: function (json) {
+                                if (json.ErrorCode) {
+                                    var errMsg = "错误代码：" + json.ErrorCode + "</br>错误信息:" + json.Message;
+                                    top.layer.msg(errMsg);
+
+                                }
+                                else {
+                                    alert("保存成功！");
+
+                                    var index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
+                                }
+                            }
+                        });
+                    },
+                    CancelBaseConfig: function () {
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }
+                },
+                mounted: function () {
+                    this.LoadBaseConfig();
+                }
+            })
+        }
+    </script>
+
+
+</body>
+</html>

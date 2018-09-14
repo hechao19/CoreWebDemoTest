@@ -1,0 +1,184 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="myCarousel">
+    <div style="margin:10px 0px;">
+        节点代码:
+        <input style="width:100px;" type="text" v-model="nodeCode" />
+        节点值域:
+        <input style="width:100px;" type="text" v-model="nodeDomain" />
+        <button v-on:click="LoadBaseConfigList(pageData)">查询</button>
+        <button v-on:click="DeleteBaseConfigList">删除</button>
+        <button v-on:click="UpdateBaseConfig">修改</button>
+        <button v-on:click="AddBaseConfig">新增</button>
+    </div>
+    <table>
+        <tr>
+            <td style="width:30px;"><input type="checkbox" id="checkbox" v-model="checked" v-on:click="ChangeAllChecked"></td>
+            <td style="width:200px;">节点代码</td>
+            <td style="width:200px;">节点值域</td>
+        </tr>
+        <tr v-for="baseConfig in baseConfigList">
+            <td><input type="checkbox" v-bind:id="baseConfig.NodeCode" v-bind:value="baseConfig" v-model="checkedNames"></td>
+            <td>{{baseConfig.NodeCode}}</td>
+            <td>{{baseConfig.NodeDomain}}</td>
+        </tr>
+    </table>
+    <div id="pagingDiv">
+        <mycomponent v-on:show-page="LoadBaseConfigList" v-bind:pager-data="pageData"></mycomponent>
+    </div>
+
+    <script src="~/js/page.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            var vm = new Vue({
+                el: '#myCarousel',
+                //数据
+                data: {
+                    baseConfigList: [],
+                    checkedNames: [],
+                    checked: false,
+                    nodeCode: "",
+                    nodeDomain: "",
+                    pageData: {
+                        isShow: true,
+                        arrPageSize: [10, 20, 30, 40, 50],
+                        pageSize: 10,
+                        pageCount: 1,
+                        pageCurrent: 1,
+                        totalCount: 1
+                    },
+                },
+                //方法
+                methods: {
+                    LoadBaseConfigList: function (page) {
+                        var _this = this;
+
+                        _this.checkedNames = [];
+                        _this.pageData.pageSize = page.pageSize;
+                        _this.pageData.pageCurrent = page.pageCurrent;
+
+                        $.ajax({
+                            url: "/Home/GetBaseConfigList",
+                            type: "post",
+                            dataType: "json",
+                            data: { nodeCode: _this.nodeCode, nodeDomain: _this.nodeDomain, pageSize: page.pageSize, pageCurrent: page.pageCurrent },
+                            success: function (json) {
+                                if (json.ErrorCode) {
+                                    var errMsg = "错误代码：" + json.ErrorCode + "</br>错误信息:" + json.Message;
+                                    top.layer.msg(errMsg);
+                                }
+                                else {
+                                    _this.baseConfigList = json.rows;
+
+                                    _this.pageData.totalCount = json.total;
+
+                                    if (json.total==0) {
+                                        _this.pageData.isShow = false;
+                                    } else {
+                                        _this.pageData.isShow = true;
+                                    }
+                                    _this.pageData.pageCount = Math.ceil(_this.pageData.totalCount / page.pageSize);
+                                }
+                            }
+                        });
+                    },
+                    DeleteBaseConfigList: function () {
+                        if (this.checkedNames.length == 0) {
+                            alert("请选择删除的数据！");
+                            return;
+                        }
+
+                        var nodeCodeVal = "";
+                        for (var i = 0; i < this.checkedNames.length; i++) {
+                            if (i != 0) {
+                                nodeCodeVal += ",";
+                            }
+                            nodeCodeVal += this.checkedNames[i].NodeCode;
+                        }
+
+                        $.ajax({
+                            url: "/Home/DeleteBaseConfigs",
+                            type: "post",
+                            dataType: "json",
+                            data: { nodeCodes: nodeCodeVal},
+                            success: function (json) {
+                                if (json.ErrorCode) {
+                                    var errMsg = "错误代码：" + json.ErrorCode + "</br>错误信息:" + json.Message;
+                                    top.layer.msg(errMsg);
+
+                                }
+                                else {
+                                    alert("删除成功！");
+                                }
+                            }
+                        });
+
+                        
+                    },
+                    UpdateBaseConfig: function () {
+                        if (this.checkedNames.length == 0 || this.checkedNames.length > 1) {
+                            alert("请选择一条数据！");
+                            return;
+                        }
+
+                        var baseConfig = this.checkedNames[0];
+
+                        top.layer.open({
+                            type: 2, //可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                            title: "修改",
+                            shadeClose: true,
+                            shade: 0.3,
+                            maxmin: false, //开启最大化最小化按钮
+                            area: ["300px", "200px"],
+                            content: "/Home/EditBaseConfig?nodeCode=" + baseConfig.NodeCode, //iframe的url
+                        });
+
+                        //alert("修改成功！");
+                    },
+                    AddBaseConfig: function () {
+                        top.layer.open({
+                            type: 2, //可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                            title: "新增",
+                            shadeClose: true,
+                            shade: 0.3,
+                            maxmin: false, //开启最大化最小化按钮
+                            area: ["300px", "200px"],
+                            content: "/Home/EditBaseConfig", //iframe的url
+                        });
+
+                        //alert("修改成功！");
+                    },
+                    ChangeAllChecked: function () {
+                        if (!this.checked) {
+                            this.checkedNames = this.baseConfigList;
+                        } else {
+                            this.checkedNames = [];
+                        }
+                    }
+                },
+                //初始化事件
+                mounted: function () {
+                    this.LoadBaseConfigList(this.pageData);
+                },
+                //注册组件
+                components: {
+                    "mycomponent": pager
+                },
+                //监控事件
+                watch: {
+                    "checkedNames": function () {
+                        if (this.baseConfigList.length > 0 && this.checkedNames.length == this.baseConfigList.length) {
+                            this.checked = true;
+                        } else {
+                            this.checked = false;
+                        }
+                    }
+                }
+            })
+        }
+    </script>
+</div>
+
+

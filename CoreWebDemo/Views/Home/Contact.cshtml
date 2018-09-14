@@ -1,0 +1,55 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Contact</title>
+
+    <link rel="stylesheet" type="text/css" href="~/css/style.css" />
+</head>
+<body>
+    <div id="app" on-cloak>
+        <template v-if="list.length">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="allCheck" v-model="allCheck" /></th>
+                        <th>商品名称</th>
+                        <th>商品单价</th>
+                        <th>商品数量</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item,index) in list">
+                        <td><input type="checkbox" id="index" v-model="checks" /></td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.price}}</td>
+                        <td>
+                            <button v-on:click="handleReduce(index)"
+                                    v-bind:disabled="item.count===1">
+                                -
+                            </button>
+                            {{item.count}}
+                            <button v-on:click="handleAdd(index)">+</button>
+                        </td>
+                        <td>
+                            <button v-on:click="handleRemove(index)">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>总价：￥{{totalPrice}}</div>
+        </template>
+        <div v-else>购物车为空</div>
+    </div>
+    
+    <script src="~/js/vue.min.js"></script>
+    <script src="~/js/Contact.js"></script>
+
+</body>
+</html>
