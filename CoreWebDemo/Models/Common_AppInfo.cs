@@ -24,7 +24,7 @@ namespace CoreWebDemo.DBRule
             EntityMap=EntityMapType.Table;
             //IdentityName = "标识字段名";
 
-            //PrimaryKeys.Add("主键字段名");
+            //PrimaryKeys.Add("主键字段名")q;
     PrimaryKeys.Add("AppId");
 
             
