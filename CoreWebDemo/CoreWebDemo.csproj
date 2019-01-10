@@ -29,6 +29,9 @@
     <Reference Include="PWMIS.Core.Extensions">
       <HintPath>..\..\..\GongSiKaiFa\07DataReport\Code\Fugle.DataReportService_Scene\lib\PWMIS.Core.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\lib\RestSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

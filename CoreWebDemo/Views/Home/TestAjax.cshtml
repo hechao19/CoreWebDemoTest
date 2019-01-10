@@ -2,12 +2,59 @@
     ViewData["Title"] = "About";
 }
 
-
+<script src="~/lib/jquery/dist/jquery.js"></script>
 <div style="width:100%;height:100%">
     <div>cesium</div>
     
 </div>
-<script>
+<script type="text/javascript">
+    //$(function () {
+    //    var result = [];
+    //    result.push({
+    //        id: 1,
+    //        name: "1",
+    //        test1List: [{ id: 1, name: "1" }, { id: 2, name: "2", }]
+    //    });
+    //    result.push({
+    //        id: 2,
+    //        name: "2"
+    //    });
+    //    $.ajax({
+    //        url: "../Home/PostList",
+    //        type: "post",
+    //        data: { list: result},
+    //        dataType: "json",
+    //        contentType: "application/x-www-form-urlencoded;charset=utf-8",
+    //        async: true,
+    //        success: function (result) {
+    //            if (result.ReturnState == undefined || result.ReturnState == true) {
+    //            }
+    //        },
+    //        error: function (jqXHR, textStatus, errorThrown) {
+    //            if (textStatus == "parsererror") {
+    //            }
+    //        }
+    //    });
+    //});
+</script>
 
-   
-</script >
+<script type="text/javascript">
+    $(function () {
+        $.ajax({
+            url: "../Home/TestUpdateEntity",
+            type: "get",
+            data: { 'MenuSort': 1, IsHaveAuthority:true },
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded;charset=utf-8",
+            async: true,
+            success: function (result) {
+                if (result.ReturnState == undefined || result.ReturnState == true) {
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (textStatus == "parsererror") {
+                }
+            }
+        });
+    });
+</script>

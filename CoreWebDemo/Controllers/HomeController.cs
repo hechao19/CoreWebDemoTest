@@ -13,6 +13,11 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
+using RestSharp;
+using CoreWebDemo.Common;
+using System.Reflection;
+using System.Globalization;
+using System.ComponentModel;
 
 namespace CoreWebDemo.Controllers
 {
@@ -284,5 +289,95 @@ namespace CoreWebDemo.Controllers
         }
 
         #endregion
+
+        [HttpPost]
+        public string PostList(List<Test1> list)
+        {
+            try
+            {
+                RestAPIExecutor defaultAPIExecutor = new RestAPIExecutor("http://localhost:19479/");
+
+                // 调用WebApi获取拥有权限菜单和功能列表数据
+                var request = new RestRequest("api/UserManage/UpdateUserPwd", Method.POST);
+                request.AddParameter("list", list);
+                var response = defaultAPIExecutor.Execute(request);
+
+                return "{\"Message\":1,\"ReturnState\":True}";
+            }
+            catch (Exception err)
+            {
+
+                return "{\"Message\":\"错误\",\"ReturnState\":false}";
+            }
+        }
+
+        public void TestUpdateEntity()
+        {
+            try
+            {
+                var menuInfo = new AuthMenuInfo();
+                var entityInfo= new AuthMenuInfo() { MenuID="111111"};
+                var entityType = menuInfo.GetType();
+                var entityProperties = entityType.GetProperties().Where(x => x.PropertyType.IsPublic && x.CanWrite);
+
+                foreach (var item in entityProperties)
+                {
+                    if (Request.Query[item.Name].Count > 0)
+                    {
+                        item.SetValue(menuInfo, TypeConversion.To(Request.Query[item.Name].ToString(), item.PropertyType, CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        item.SetValue(menuInfo, item.GetValue(entityInfo));
+                    }
+                }
+
+                //MenuInfo nc = new MenuInfo();
+                //Type t = nc.GetType();
+                //object obj = Activator.CreateInstance(t);
+                ////取得ID字段 
+                //FieldInfo fi = t.GetField("ID");
+                ////给ID字段赋值 
+                //fi.SetValue(obj, "k001");
+                ////取得MyName属性 
+                //PropertyInfo pi1 = t.GetProperty("MyName");
+                ////给MyName属性赋值 
+                //pi1.SetValue(obj, "grayworm", null);
+                //PropertyInfo pi2 = t.GetProperty("MyInfo");
+                //pi2.SetValue(obj, "hi.baidu.com/grayworm", null);
+                ////取得show方法 
+                //MethodInfo mi = t.GetMethod("show");
+                ////调用show方法 
+                //mi.Invoke(obj, null);
+            }
+            catch (Exception err)
+            {
+                
+            }
+        }
+        
+        public void TestUpdateEntity1()
+        {
+            try
+            {
+                if (Request.Query["id"].Count <= 0)
+                {
+
+                }
+                else
+                {
+
+                }
+                
+                //var entity = new MenuInfo();
+                //entity.MenuID = "12345678";
+
+                //var a = Mapper<MenuInfo, AuthMenuInfo>.Map(entity);
+            }
+            catch (Exception err)
+            {
+
+            }
+        }
     }
 }
